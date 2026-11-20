@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>라이즈 옷 입히기 게임</title>
+<style>
+@font-face{font-family:'DOSSaemmul';src:url('fonts/DOSSaemmul.ttf') format('truetype');font-display:swap}
+:root{--hot:#ff3d9a;--pk:#ff8cc6;--pk2:#ffd3ea;--pur:#8a4dff;--ink:#4a1d3a;--navy:#7a1f5c;--gold:#ffe25a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:'DOSSaemmul',monospace;color:var(--ink);font-size:14px;background:#ff5fb0;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:8px 6px 20px;overflow-x:hidden}
+.cab{width:100%;max-width:440px;background:linear-gradient(#ff7cc0,#ff3d9a);border:4px solid #7a1f5c;box-shadow:0 0 0 3px #ffb3dc,6px 6px 0 #7a1f5c;padding:10px;position:relative}
+.marq{background:#ffd0ea;border:3px solid #7a1f5c;padding:8px 6px;text-align:center;color:var(--navy);font-size:20px;text-shadow:2px 2px 0 #fff;letter-spacing:2px;margin-bottom:10px;position:relative}
+.marq .h{position:absolute;font-size:16px}
+.screen{background:radial-gradient(circle at 20% 15%,rgba(255,255,255,.55) 0 2px,transparent 3px) 0 0/34px 34px,radial-gradient(circle at 70% 60%,rgba(255,226,90,.5) 0 2px,transparent 3px) 0 0/50px 50px,linear-gradient(#8a4dff,#ff9fd6 70%,#ffd3ea);border:4px solid #7a1f5c;box-shadow:inset 0 0 0 3px #fff;padding:12px;min-height:440px;position:relative;overflow:hidden}
+.scr{display:none}.scr.on{display:block;animation:pop .3s ease}
+@keyframes pop{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+/* title */
+.title{text-align:center;margin-top:40px}
+.title h1{margin:0;font-weight:400;font-size:52px;color:#fff;text-shadow:4px 4px 0 var(--navy),-2px -2px 0 var(--navy)}
+.title .sub{font-size:16px;color:#fff;margin-top:6px;text-shadow:2px 2px 0 var(--navy)}
+.press{display:inline-block;margin-top:10px;background:#fff;color:var(--navy);border:4px solid var(--navy);padding:10px 26px;font-size:20px;cursor:pointer;box-shadow:4px 4px 0 var(--navy);animation:blink 1s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+.intro{position:relative;height:300px}
+.intro .char{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);height:220px;image-rendering:pixelated;animation:bob 1.6s ease-in-out infinite;filter:drop-shadow(4px 4px 0 var(--navy))}
+.intro .spot{position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);width:200px;height:26px;border-radius:50%;background:rgba(122,31,92,.35)}
+.bubble{position:absolute;left:50%;top:4px;transform:translateX(-50%);background:#fff;border:3px solid var(--navy);padding:8px 12px;font-size:16px;color:var(--navy);white-space:nowrap;box-shadow:3px 3px 0 var(--navy)}
+.bubble:after{content:"";position:absolute;left:50%;bottom:-12px;margin-left:-8px;border:8px solid transparent;border-top:10px solid var(--navy);border-bottom:0}
+.sticker{position:absolute;background:#fff;border:3px solid var(--navy);border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:2px 2px 0 var(--navy);animation:bob 2.4s ease-in-out infinite}
+.sparkle{position:absolute;color:#fff;font-size:18px;text-shadow:0 0 6px #ffe25a;animation:twinkle 1.6s ease-in-out infinite}
+@keyframes twinkle{50%{opacity:.2;transform:scale(.6)}}
+.hearts{position:absolute;font-size:22px;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+/* status */
+.stat-box{background:#fff;border:3px solid var(--navy);padding:12px;margin-bottom:10px}
+.stat-box h3{margin:0 0 8px;font-weight:400;font-size:20px;color:var(--navy);text-align:center}
+.row{display:flex;align-items:center;gap:8px;margin:8px 0}
+.row .k{width:70px;color:var(--navy)}
+.bar{flex:1;height:14px;background:#ffd3ea;border:2px solid var(--navy);position:relative}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#ff3d9a,#ffe25a)}
+.lv{font-size:13px;width:44px;text-align:right;color:var(--navy)}
+.msg-box{background:#fff;border:3px solid var(--navy);padding:10px;font-size:14px;line-height:1.7;min-height:86px;color:var(--ink)}
+.btn{font-family:inherit;font-size:16px;background:var(--hot);color:#fff;border:3px solid var(--navy);padding:8px 16px;cursor:pointer;box-shadow:3px 3px 0 var(--navy);margin-top:10px}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--navy)}
+.btn.w{background:#fff;color:var(--navy)}
+/* dress room */
+.dress{display:grid;grid-template-columns:70px 1fr 110px;gap:8px}
+.col{display:flex;flex-direction:column;gap:6px}
+.cbtn{width:54px;height:54px;border-radius:50%;background:#fff;border:3px solid var(--navy);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:2px 2px 0 var(--navy)}
+.cbtn.on{background:var(--gold)}
+.ibtn{width:100%;aspect-ratio:1;border-radius:50%;background:#fff;border:3px dashed var(--pk);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:24px;padding:0;position:relative}
+.ibtn.sel{border-style:solid;border-color:var(--hot);background:#ffe9f5;box-shadow:0 0 0 3px var(--gold)}
+.ibtn small{font-size:9px;color:var(--navy);line-height:1}
+.ibtn img{width:70%;height:70%;object-fit:contain}
+.ibtn .x{position:absolute;top:0;right:4px;color:var(--navy);font-size:12px}
+.stage{background:#cdeaff radial-gradient(circle,#fff 2px,transparent 2.5px) 0 0/24px 24px;border:3px solid var(--navy);position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:360px}
+#doll{width:100%;max-width:300px;height:auto;touch-action:none;cursor:grab}
+.tools{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:6px;font-size:12px}
+.tools input{accent-color:var(--hot);width:110px}
+.mini{font-family:inherit;font-size:12px;background:#fff;border:2px solid var(--navy);padding:4px 8px;cursor:pointer;color:var(--navy)}
+.mini.on{background:var(--gold)}
+.tag{position:absolute;top:6px;left:8px;background:var(--hot);color:#fff;font-size:12px;padding:2px 6px;border:2px solid var(--navy)}
+.note{font-size:11px;color:#fff;text-align:center;margin-top:6px;text-shadow:1px 1px 0 var(--navy)}
+.upl{display:block;text-align:center;font-size:12px;background:#fff;border:2px dashed var(--navy);padding:6px;cursor:pointer;color:var(--navy);position:relative}
+.upl input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.bottomrow{display:flex;justify-content:space-between;gap:6px;margin-top:10px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:6px 12px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;border:2px solid #fff}
+.toast.on{opacity:1}
+@media (max-width:400px){.dress{grid-template-columns:54px 1fr 90px}.cbtn{width:44px;height:44px;font-size:18px}}
+</style>
+</head>
+<body>
+<div class="cab">
+  <div class="marq"><span class="h" style="left:8px;top:6px">♥</span>라이즈<span class="h" style="right:8px;top:6px">♥</span></div>
+
+  <div class="screen">
+    <!-- 1. 시작 -->
+    <section class="scr on" id="s1">
+      <div class="title" style="margin-top:0">
+        <h1>라이즈</h1>
+        <div class="sub">★ 옷 입히기 게임 ★</div>
+      </div>
+      <div class="intro">
+        <span class="sparkle" style="left:8%;top:44px">✦</span>
+        <span class="sparkle" style="right:10%;top:70px;animation-delay:.5s">✦</span>
+        <span class="sparkle" style="left:14%;top:150px;animation-delay:1s">✧</span>
+        <div class="bubble">이제 옷 입히기 게임을 시작할거야! ♥</div>
+        <div class="spot"></div>
+        <img class="char" id="introChar" src="char.png" alt="">
+        <div class="sticker" style="right:6%;top:120px">🎀</div>
+        <div class="sticker" style="left:4%;top:190px;animation-delay:.8s">⭐</div>
+      </div>
+      <div style="text-align:center">
+        <div class="press" id="play">PRESS START</div>
+      </div>
+    </section>
+
+    <!-- 2. 상태창 -->
+    <section class="scr" id="s2">
+      <div class="stat-box">
+        <h3>★ 라이즈 Status ★</h3>
+        <div class="row"><div class="k">이름</div><div>앤톤</div></div>
+        <div class="row"><div class="k">패션</div><div class="bar"><i id="bFashion" style="width:0"></i></div><div class="lv" id="lFashion">Lv.0</div></div>
+        <div class="row"><div class="k">매력</div><div class="bar"><i style="width:72%"></i></div><div class="lv">Lv.7</div></div>
+        <div class="row"><div class="k">센스</div><div class="bar"><i style="width:55%"></i></div><div class="lv">Lv.5</div></div>
+        <div class="row"><div class="k">하트</div><div class="bar"><i style="width:90%"></i></div><div class="lv">Lv.9</div></div>
+      </div>
+      <div class="msg-box">여기서는 옷을 고를 수 있어요.<br>옷을 많이 입힐수록 <b>패션</b> 레벨이 올라가요!</div>
+      <div class="bottomrow">
+        <button class="btn w" id="back1">← 처음으로</button>
+        <button class="btn" id="next2">옷 입히러 가기 ▶</button>
+      </div>
+    </section>
+
+    <!-- 3. 옷 입히기 -->
+    <section class="scr" id="s3">
+      <div class="dress">
+        <div class="col" id="cats"></div>
+        <div class="stage">
+          <span class="tag">STYLE</span>
+          <canvas id="doll" width="300" height="340"></canvas>
+          <div class="tools">
+            <button class="mini" id="mode">🧍 인형 옮기기</button>
+            <label>크기 <input type="range" id="zoom" min="0.6" max="2" step="0.05" value="1"></label>
+            <button class="mini" id="center">가운데로</button>
+          </div>
+          <div class="note">옷 옮기기 모드에서는 입은 옷을 끌어서 옮길 수 있어요</div>
+        </div>
+        <div class="col" id="items"></div>
+      </div>
+      <div class="bottomrow">
+        <button class="btn w" id="back2">← 상태창</button>
+        <label class="upl" style="flex:1;max-width:200px">＋ 내 옷 넣기<input type="file" id="myItem" accept="image/*"></label>
+        <button class="btn" id="save">저장 ♡</button>
+      </div>
+    </section>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+/* ★ 인형 캐릭터 파일 (나중에 여기만 바꾸면 돼요) */
+const DOLL_SRC='char.png';
+
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem('rz_'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('rz_'+k,JSON.stringify(v))}catch(e){}}};
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),1400);}
+function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id));}
+
+/* 옷 종류 */
+const CATS=[
+  {k:'hat',n:'모자',e:'🧢',y:40},
+  {k:'acc',n:'안경',e:'🕶️',y:84},
+  {k:'outer',n:'후드',e:'🧥',y:150},
+  {k:'top',n:'상의',e:'👕',y:160},
+  {k:'bottom',n:'하의',e:'👖',y:226},
+  {k:'bag',n:'가방',e:'👜',y:230},
+  {k:'shoes',n:'신발',e:'👟',y:292},
+];
+const ITEMS=[
+  {id:'hat1',cat:'hat',n:'캡모자',e:'🧢'},{id:'hat2',cat:'hat',n:'비니',e:'🧶'},{id:'hat3',cat:'hat',n:'리본',e:'🎀'},{id:'hat4',cat:'hat',n:'왕관',e:'👑'},
+  {id:'acc1',cat:'acc',n:'선글라스',e:'🕶️'},{id:'acc2',cat:'acc',n:'목걸이',e:'📿'},{id:'acc3',cat:'acc',n:'귀걸이',e:'💎'},{id:'acc4',cat:'acc',n:'나비',e:'🦋'},
+  {id:'out1',cat:'outer',n:'후드티',e:'🧥'},{id:'out2',cat:'outer',n:'청자켓',e:'🧥'},{id:'out3',cat:'outer',n:'가디건',e:'🧶'},{id:'out4',cat:'outer',n:'조끼',e:'🦺'},
+  {id:'top1',cat:'top',n:'흰 티셔츠',e:'👕'},{id:'top2',cat:'top',n:'블라우스',e:'👚'},{id:'top3',cat:'top',n:'니트',e:'🧶'},{id:'top4',cat:'top',n:'나시',e:'🎽'},
+  {id:'bot1',cat:'bottom',n:'청바지',e:'👖'},{id:'bot2',cat:'bottom',n:'플리츠 치마',e:'👗'},{id:'bot3',cat:'bottom',n:'반바지',e:'🩳'},{id:'bot4',cat:'bottom',n:'슬랙스',e:'👔'},
+  {id:'bag1',cat:'bag',n:'숄더백',e:'👜'},{id:'bag2',cat:'bag',n:'백팩',e:'🎒'},{id:'bag3',cat:'bag',n:'클러치',e:'👛'},{id:'bag4',cat:'bag',n:'토트백',e:'🛍️'},
+  {id:'sh1',cat:'shoes',n:'운동화',e:'👟'},{id:'sh2',cat:'shoes',n:'하이힐',e:'👠'},{id:'sh3',cat:'shoes',n:'부츠',e:'🥾'},{id:'sh4',cat:'shoes',n:'샌들',e:'🩴'},
+];
+let customs=store.get('customs',[]);
+let eq=store.get('eq',{});
+let offs=store.get('offs',{});
+let view=store.get('view',{x:0,y:0,s:1});
+let curCat='hat',mode='doll';
+const imgCache={};
+function allItems(){return ITEMS.concat(customs);}
+function findItem(id){return allItems().find(i=>i.id===id);}
+function itemImg(it){
+  if(imgCache[it.id]!==undefined)return imgCache[it.id];
+  const im=new Image();
+  im.onload=()=>{draw();renderItems();};
+  im.onerror=()=>{imgCache[it.id]=null;};
+  im.src=it.src||('items/'+it.id+'.png');
+  imgCache[it.id]=im;
+  return im;
+}
+function okImg(im){return im&&im.complete&&im.naturalWidth>0;}
+
+/* 칸 버튼 */
+function renderCats(){
+  $('#cats').innerHTML=CATS.map(c=>`<button class="cbtn${c.k===curCat?' on':''}" data-c="${c.k}" title="${c.n}">${c.e}</button>`).join('');
+}
+$('#cats').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;curCat=b.dataset.c;renderCats();renderItems();syncZoom();draw();};
+
+/* 옷 목록 (동그란 버튼) */
+function renderItems(){
+  const list=allItems().filter(i=>i.cat===curCat);
+  $('#items').innerHTML=list.map(i=>{
+    const im=itemImg(i);
+    const pic=okImg(im)?`<img src="${im.src}" alt="">`:`<span>${i.e||'👚'}</span>`;
+    const sel=eq[curCat]===i.id?' sel':'';
+    return `<button class="ibtn${sel}" data-id="${i.id}">${pic}<small>${i.n}</small>${i.src?'<span class="x" data-del="'+i.id+'">×</span>':''}</button>`;
+  }).join('')||'<div style="font-size:12px;color:var(--navy);text-align:center">옷이 없어요</div>';
+  const count=Object.values(eq).filter(Boolean).length;
+  const pct=Math.round(count/CATS.length*100);
+  const fb=$('#bFashion');if(fb)fb.style.width=pct+'%';
+  const lf=$('#lFashion');if(lf)lf.textContent='Lv.'+Math.min(9,count);
+}
+$('#items').onclick=e=>{
+  const d=e.target.closest('[data-del]');
+  if(d){customs=customs.filter(c=>c.id!==d.dataset.del);delete eq[curCat];save();renderItems();draw();return;}
+  const b=e.target.closest('[data-id]');if(!b)return;
+  const id=b.dataset.id;
+  eq[curCat]=(eq[curCat]===id)?null:id;
+  save();renderItems();draw();
+};
+
+/* 인형 */
+const cv=$('#doll'),cx=cv.getContext('2d');
+let BODY=null;const bodyImg=new Image();bodyImg.onload=()=>{BODY=bodyImg;draw();};bodyImg.src=DOLL_SRC;
+function cur(){return mode==='doll'?view:(offs[curCat]||(offs[curCat]={x:0,y:0,s:1}));}
+function draw(){
+  cx.setTransform(1,0,0,1,0,0);cx.clearRect(0,0,cv.width,cv.height);
+  const W=cv.width,H=cv.height;
+  cx.save();cx.translate(W/2+view.x,H/2+view.y);cx.scale(view.s,view.s);cx.translate(-W/2,-H/2);
+  if(BODY){const h=300,w=BODY.width*h/BODY.height;cx.drawImage(BODY,(W-w)/2,20,w,h);}
+  else{cx.font='240px sans-serif';cx.textAlign='center';cx.fillText('🧍',W/2,H-30);cx.textAlign='left';}
+  ['bottom','top','outer','shoes','bag','hat','acc'].forEach(k=>{
+    const id=eq[k];if(!id)return;const it=findItem(id);if(!it)return;
+    const o=offs[k]||{x:0,y:0,s:1};const im=itemImg(it);
+    cx.save();cx.translate(W/2+o.x,H/2+o.y);cx.scale(o.s,o.s);cx.translate(-W/2,-H/2);
+    if(okImg(im)){cx.drawImage(im,0,0,W,H);}
+    else{const c=CATS.find(c=>c.k===k);cx.font='90px sans-serif';cx.textAlign='center';cx.fillText(it.e||'👚',k==='bag'?W*0.75:W/2,c.y*1.2+40);cx.textAlign='left';}
+    cx.restore();
+  });
+  cx.restore();
+  if(mode==='item'){const c=CATS.find(c=>c.k===curCat);cx.font='13px sans-serif';cx.fillStyle='#7a1f5c';cx.fillText('옮기는 중: '+c.n,8,H-8);}
+}
+function syncZoom(){$('#zoom').value=cur().s;$('#mode').textContent=mode==='doll'?'🧍 인형 옮기기':'👕 옷 옮기기';$('#mode').classList.toggle('on',mode==='item');}
+let drag=null;
+cv.addEventListener('pointerdown',e=>{
+  if(mode==='item'&&!eq[curCat]){toast('먼저 이 칸에 옷을 입혀요');return;}
+  const r=cv.getBoundingClientRect();const t=cur();
+  drag={x:e.clientX,y:e.clientY,vx:t.x,vy:t.y,r};cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener('pointermove',e=>{if(!drag)return;const t=cur();const k=cv.width/drag.r.width;t.x=drag.vx+(e.clientX-drag.x)*k;t.y=drag.vy+(e.clientY-drag.y)*k;draw();});
+cv.addEventListener('pointerup',()=>{if(drag){drag=null;save();}});
+cv.addEventListener('pointercancel',()=>{drag=null;});
+$('#zoom').oninput=e=>{cur().s=+e.target.value;draw();save();};
+$('#mode').onclick=()=>{mode=mode==='doll'?'item':'doll';syncZoom();};
+$('#center').onclick=()=>{if(mode==='doll')view={x:0,y:0,s:1};else offs[curCat]={x:0,y:0,s:1};syncZoom();draw();save();toast('원래 자리로 돌아갔어요');};
+
+function save(){store.set('eq',eq);store.set('offs',offs);store.set('view',view);store.set('customs',customs);}
+
+/* 내 옷 넣기 */
+$('#myItem').onchange=e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{const it={id:'u'+Date.now(),cat:curCat,n:'내 옷',src:r.result};customs.push(it);eq[curCat]=it.id;save();renderItems();draw();toast('옷 추가! 바로 입혔어요');};
+  r.readAsDataURL(f);e.target.value='';
+};
+$('#save').onclick=()=>{save();toast('저장했어요 ♡');};
+
+/* 화면 이동 */
+$('#play').onclick=()=>show('s2');
+$('#back1').onclick=()=>show('s1');
+$('#next2').onclick=()=>{show('s3');renderCats();renderItems();syncZoom();draw();};
+$('#back2').onclick=()=>show('s2');
+
+/* 시작 */
+renderCats();renderItems();syncZoom();draw();
+})();
+</script>
+</body>
+</html>
